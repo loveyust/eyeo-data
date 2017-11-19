@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>Eyeo Data Viz</title>
+	<script src="js/processing.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+	<!--<h1>Eyeo</h1>
+	<p>Eyeo Data Viz</p>-->
+	<canvas id="sketch" data-processing-sources="./eyeo.pde"></canvas>
+	<script>
+		// sketch 6
+		function loadPointsJSON(id, button) {
+			button.disabled = "disabled";
+			var pjs = Processing.getInstanceById(id);
+			var json = "{'points' : [{'x': 10, 'y': 10}, {'x': 190, 'y': 10}, {'x': 190, 'y': 190}, {'x': 10, 'y': 190}]}";
+			var jsonStr = JSON.stringify(json);
+			var data = eval("[" + jsonStr + "]");    
+			if (data) {
+				for (p=0, end=data.points.length; p<end; p++) {
+					var point = data.points[p];
+					pjs.addPoint(point.x, point.y);
+				}
+			}
+		}
+
+
+		function loadJSON(json) {
+			var jsonStr = JSON.stringify(json);
+			var data = eval("[" + jsonStr + "]");
+      		if(data) {
+			// we know the JSON is an array of points, called "points"
+				for(p=0, end=data.points.length; p<end; p++) {
+					var point = data.points[p];
+					pjs.addPoint(point.x, point.y);
+				}
+         	}
+		}
+
+		$.getJSON("data.json", function(json) {
+		    // this will show the info it in firebug console
+		    // loadJSON(json);
+		    var pjs = Processing.getInstanceById('sketch');
+		    var jsonStr = JSON.stringify(json);
+			var data = eval("[" + jsonStr + "]");
+			console.log(data[0]['people']);
+			var counter = 0;
+			for (var key in data[0]['people']) {
+			    if (data[0]['people'].hasOwnProperty(key)) {
+			    	var num = data[0]['people'][key]['num'];
+			       // console.log(key + " -> " + data[0]['people'][key]);
+			        pjs.drawEyeoChart(num, data[0]['people'][key]['name'], counter);
+			        counter++;
+			    }
+
+			}
+
+			// for(p=0, end=data[0]['people'].length; p<end; p++) {
+			// 	var n = data[0]['people'].keys[p];
+				
+			// 	pjs.drawEyeoChart(data[0]['people'][p]['num'], n);
+			// }
+
+			
+		});
+		
+	</script>
+	<div>load points: <button type="button" id="loadPoints" onclick="loadPointsJSON('mysketch6', this)" disabled="">load</button></div>
+</body>
+</html>

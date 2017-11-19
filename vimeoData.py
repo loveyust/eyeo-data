@@ -5,6 +5,9 @@ from glob import glob
 import os.path
 import ast
 import re
+import operator
+from operator import attrgetter
+from operator import itemgetter
 
 # Access the vimeo API
 # v = vimeo.VimeoClient(token="15788d8848c4bd4d5bc044ea110e7d52", key="a549d0fcfcf1ac4456c83f4dd5788364a00ddd3c", secret="37sdo9zfjEieq7UB0gKRR41xxfuz3nzW7GmIL770lTJ4L5gUcGpvQGGlYjIWfaqlZvEoEFZPs6KxnLqQgV7RGu2bAalm86iV5esLnz81fxXeJBx0Fxuwr04oNJfp2QaG")
@@ -36,7 +39,7 @@ print len(data_in)
 data_out = {}
 data_out['talks'] = []
 data_out['tags'] = {}
-data_out['people'] = {}
+data_out['people'] = []
 
 # Iterate through video data
 for vid in data_in:
@@ -77,12 +80,27 @@ for vid in data_in:
                 print names
             else:
                 names.append(name)
+
+            # check if person exists
             for n in names:
-                if n not in data_out['people']:
-                    data_out['people'][n] = {}
-                    data_out['people'][n]['num'] = 1
+                limited_list = [element for element in data_out['people'] if element['name'] == n]
+                if (len(limited_list) > 0):
+                    limited_list[0]['num'] += 1
+
+                #if any(obj['name'] == n for obj in data_out['people']):
+                #    obj['num'] += 1
                 else:
-                    data_out['people'][n]['num'] += 1
+                    new_person = {}
+                    new_person['name'] = n
+                    new_person['num'] = 1
+                    data_out['people'].append(new_person)
+
+            # for n in names:
+            #     if n not in data_out['people']:
+            #         data_out['people'][n] = {}
+            #         data_out['people'][n]['num'] = 1
+            #     else:
+            #         data_out['people'][n]['num'] += 1
 
         first_name = name.split(' ',1)[0]
         first_name = first_name.lower()
@@ -124,6 +142,9 @@ for vid in data_in:
                 else:
                     data_out['tags'][y][tag[u'name']]['num'] += 1
 
-
+data_out['people'].sort(key=itemgetter("num"), reverse=True)
 print data_out['people']
+
+with open('data.json', 'w') as outfile:
+    json.dump(data_out, outfile)
 
