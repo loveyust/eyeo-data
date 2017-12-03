@@ -2,136 +2,32 @@
 <html>
 	<head>
 	<title>Eyeo Data Viz</title>
-	<!--<script src="./js/processing.min.js"></script> -->
 	<script language="JavaScript" type="text/javascript" src="./js/jquery-3.2.1.min.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="layout.css" />
-    <script type="text/javascript" src="../deps/processing-1.1.0.min.js"></script>
-    <script type="text/javascript" src="./src/streamgraph.js"></script>
-    <script type="text/javascript" src="./src/streamgraph.settings.js"></script>
-    <script type="text/javascript" src="./src/rect.js"></script>
-    <script type="text/javascript" src="eyeo-stream-data.js"></script>
-
     <script src="http://d3js.org/d3.v2.js"></script>
 </head>
 <body>
-	<!--<h1>Eyeo</h1>
-	<p>Eyeo Data Viz</p>
-	<canvas id="eyeo-people" data-processing-sources="./eyeo.pde"></canvas>
-	<script>
-		$.getJSON("data.json", function(json) {
-		    // this will show the info it in firebug console
-		    var pjs = Processing.getInstanceById('eyeo-people');
-		    var jsonStr = JSON.stringify(json);
-			var data = eval("[" + jsonStr + "]");
-			console.log(data[0]['people']);
-			var counter = 0;
-			for (var key in data[0]['people']) {
-			    if (data[0]['people'].hasOwnProperty(key)) {
-			    	var num = data[0]['people'][key]['num'];
-			       // console.log(key + " -> " + data[0]['people'][key]);
-			        pjs.drawEyeoChart(num, data[0]['people'][key]['name'], counter);
-			        counter++;
-			    }
-			}
-		});
-	</script>-->
-
-
-	<!-- <canvas id="full" datasrc="./src/streamgraph.pjs"></canvas> -->
-	<script>
-		var labels = [];
-		var years = [];
-		var data_graph = [];
-		$.getJSON("data.json", function(json) {
-		    // this will show the info it in firebug console
-		    var pjs = Processing.getInstanceById('full');
-		    var jsonStr = JSON.stringify(json);
-			var data = eval("[" + jsonStr + "]");
-			console.log(data[0]['tags']);
-
-			var labels = [];
-			var years = [];
-			var data_graph = [];
-
-			for (var key in data[0]['tags']) {
-				var b_ignore = false;
-				if (Object.keys(data[0]['tags'][key]).length == 1) {
-					for (var year in data[0]['tags'][key]) {
-						if (data[0]['tags'][key][year]['num'] == 1) {
-							b_ignore = true;
-						}
-						if ($.inArray(year, years) == -1 ){
-							years.push(year);
-						}
-					}
-				}
-				if (!b_ignore) {
-					for (var year in data[0]['tags'][key]) {
-						console.log(key + " " + year + " -> " + data[0]['tags'][key][year]['num']);  // Object.keys(obj).length
-					}
-					labels.push (key);
-				}
-			}
-			years.sort();
-			labels.sort();
-
-			// Initialize the data_graph array.
-			var data_graph = [];
-			console.log(labels);
-			for (var y = 0; y < years.length; y++) {
-				data_graph[y] = []
-				for (var i = 0; i < labels.length; i++) {
-					data_graph[y][i] = 0;
-				}
-			}
-
-			// Iterate through data again to populate the data_graph array
-			for (var key in data[0]['tags']) {
-				// Check if we care about this array
-				var term_index = -1;
-				if ((term_index = labels.indexOf(key)) > -1) {
-					for (var year in data[0]['tags'][key]) {
-						var year_index = years.indexOf(year);
-						data_graph[year_index][term_index] = data[0]['tags'][key][year]['num'];
-					}
-				}
-			}
-			console.log(data_graph);
-			// pjs.loadData(labels, data_graph);
-		});
-	</script>
-	
-	<!--<div>load points: <button type="button" id="loadPoints" disabled="">load</button></div>-->
-
 	<style>
 
-	body {
-	  font: 10px sans-serif;
-	}
+		body { font: 10px sans-serif; }
+		.chart { background: #fff; }
 
-	.chart { 
-	  background: #fff;
-	}
+		p {
+		  font: 14px helvetica;
+		  font-weight: bold;
+		}
 
-	p {
-	  font: 14px helvetica;
-	  font-weight: bold;
-	}
+		.axis path, .axis line {
+		  fill: none;
+		  stroke: #000;
+		  stroke-width: 2px;
+		  shape-rendering: crispEdges;
+		}
 
-
-	.axis path, .axis line {
-	  fill: none;
-	  stroke: #000;
-	  stroke-width: 2px;
-	  shape-rendering: crispEdges;
-	}
-
-	button {
-	  position: absolute;
-	  right: 50px;
-	  top: 10px;
-	}
+		button {
+		  position: absolute;
+		  right: 50px;
+		  top: 10px;
+		}
 
 	</style>
 
@@ -139,189 +35,178 @@
 
 	<script>
 
-	chart("data_tags.csv", "orange");
+		chart("data_tags.csv", "blue");
+		var datearray = [];
+		var colorrange = [];
 
-	var datearray = [];
-	var colorrange = [];
+		function chart(csvpath, color) {
 
-	function chart(csvpath, color) {
+			if (color == "blue") {
+			  colorrange = ["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
+			}
+			else if (color == "pink") {
+			  colorrange = ["#980043", "#DD1C77", "#DF65B0", "#C994C7", "#D4B9DA", "#F1EEF6"];
+			}
+			else if (color == "orange") {
+			  colorrange = ["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9"];
+			}
+			strokecolor = colorrange[0];
 
-		if (color == "blue") {
-		  colorrange = ["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
-		}
-		else if (color == "pink") {
-		  colorrange = ["#980043", "#DD1C77", "#DF65B0", "#C994C7", "#D4B9DA", "#F1EEF6"];
-		}
-		else if (color == "orange") {
-		  colorrange = ["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9"];
-		}
-		strokecolor = colorrange[0];
+			var format = d3.time.format("%m/%d/%y");
 
-		var format = d3.time.format("%m/%d/%y");
+			var margin = {top: 20, right: 40, bottom: 30, left: 30};
+			var width = document.body.clientWidth - margin.left - margin.right;
+			var height = 800 - margin.top - margin.bottom;
 
-		var margin = {top: 20, right: 40, bottom: 30, left: 30};
-		var width = document.body.clientWidth - margin.left - margin.right;
-		var height = 800 - margin.top - margin.bottom;
+			var tooltip = d3.select("body")
+			    .append("div")
+			    .attr("class", "remove")
+			    .style("position", "absolute")
+			    .style("z-index", "20")
+			    .style("visibility", "hidden")
+			    .style("top", "30px")
+			    .style("left", "55px")
+			    .style("padding", "0px 10px")
+			    .style("color", "#333")
+			    .style("background", "rgba(255,255,255,0.6)");
+			tooltip.select("p").style("font-size", "20px");
 
-		var tooltip = d3.select("body")
-		    .append("div")
-		    .attr("class", "remove")
-		    .style("position", "absolute")
-		    .style("z-index", "20")
-		    .style("visibility", "hidden")
-		    .style("top", "30px")
-		    .style("left", "55px")
-		    .style("padding", "0px 10px")
-		    .style("color", "#333")
-		    .style("background", "rgba(255,255,255,0.6)");
-		tooltip.select("p").style("font-size", "20px");
+			var x = d3.time.scale()
+			    .range([0, width]);
 
-		var x = d3.time.scale()
-		    .range([0, width]);
+			var y = d3.scale.linear()
+			    .range([height-10, 0]);
 
-		var y = d3.scale.linear()
-		    .range([height-10, 0]);
+			var z = d3.scale.ordinal()
+			    .range(colorrange);
 
-		var z = d3.scale.ordinal()
-		    .range(colorrange);
+			var xAxis = d3.svg.axis()
+			    .scale(x)
+			    .orient("bottom")
+			    .ticks(d3.time.years);
 
-		var xAxis = d3.svg.axis()
-		    .scale(x)
-		    .orient("bottom")
-		    .ticks(d3.time.years);
+			var yAxis = d3.svg.axis()
+			    .scale(y);
 
-		var yAxis = d3.svg.axis()
-		    .scale(y);
+			var yAxisr = d3.svg.axis()
+			    .scale(y);
 
-		var yAxisr = d3.svg.axis()
-		    .scale(y);
+			var stack = d3.layout.stack()
+			    .offset("silhouette")
+			    .values(function(d) { return d.values; })
+			    .x(function(d) { return d.date; })
+			    .y(function(d) { return d.value; });
 
-		var stack = d3.layout.stack()
-		    .offset("silhouette")
-		    .values(function(d) { return d.values; })
-		    .x(function(d) { return d.date; })
-		    .y(function(d) { return d.value; });
+			var nest = d3.nest()
+			    .key(function(d) { return d.key; });
 
-		var nest = d3.nest()
-		    .key(function(d) { return d.key; });
+			var area = d3.svg.area()
+			    .interpolate("cardinal")
+			    .x(function(d) { return x(d.date); })
+			    .y0(function(d) { return y(d.y0); })
+			    .y1(function(d) { return y(d.y0 + d.y); });
 
-		var area = d3.svg.area()
-		    .interpolate("cardinal")
-		    .x(function(d) { return x(d.date); })
-		    .y0(function(d) { return y(d.y0); })
-		    .y1(function(d) { return y(d.y0 + d.y); });
+			var svg = d3.select(".chart").append("svg")
+			    .attr("width", width + margin.left + margin.right)
+			    .attr("height", height + margin.top + margin.bottom)
+			  	.append("g")
+	    		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-		var svg = d3.select(".chart").append("svg")
-		    .attr("width", width + margin.left + margin.right)
-		    .attr("height", height + margin.top + margin.bottom)
-		  	.append("g")
-    		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			var graph = d3.csv(csvpath, function(data) {
+				  	data.forEach(function(d) {
+				    d.date = format.parse(d.date);
+				    d.value = +d.value;
+				});
 
-		var graph = d3.csv(csvpath, function(data) {
-			  	data.forEach(function(d) {
-			    d.date = format.parse(d.date);
-			    d.value = +d.value;
-			});
+	  		var layers = stack(nest.entries(data));
 
-  		var layers = stack(nest.entries(data));
+			x.domain(d3.extent(data, function(d) { return d.date; }));
+			y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
 
-		x.domain(d3.extent(data, function(d) { return d.date; }));
-		y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
+			svg.selectAll(".layer")
+				.data(layers)
+				.enter().append("path")
+				.attr("class", "layer")
+				.attr("d", function(d) { return area(d.values); })
+				.style("fill", function(d, i) { return z(i); });
 
-		svg.selectAll(".layer")
-			.data(layers)
-			.enter().append("path")
-			.attr("class", "layer")
-			.attr("d", function(d) { return area(d.values); })
-			.style("fill", function(d, i) { return z(i); });
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(xAxis);
 
-
-		svg.append("g")
-			.attr("class", "x axis")
-			.attr("transform", "translate(0," + height + ")")
-			.call(xAxis);
-
-		/*svg.append("g")
-			.attr("class", "y axis")
-			.attr("transform", "translate(" + width + ", 0)")
-			.call(yAxis.orient("right"));
-
-		svg.append("g")
-			.attr("class", "y axis")
-			.call(yAxis.orient("left"));*/
-
-		svg.selectAll(".layer")
-			.attr("opacity", 1)
-			.on("mouseover", function(d, i) {
-				svg.selectAll(".layer").transition()
-				.duration(250)
-				.attr("opacity", function(d, j) {
-		    		return j != i ? 0.6 : 1;
+			svg.selectAll(".layer")
+				.attr("opacity", 1)
+				.on("mouseover", function(d, i) {
+					svg.selectAll(".layer").transition()
+					.duration(250)
+					.attr("opacity", function(d, j) {
+			    		return j != i ? 0.6 : 1;
+					})
 				})
-			})
 
-			.on("mousemove", function(d, i) {
-				mousex = d3.mouse(this);
-				mousex = mousex[0];
-				mousey = d3.mouse(this);
-				mousey = mousey[1];
-				var invertedx = x.invert(mousex);
-				invertedx = invertedx.getYear();// + invertedx.getDate(); //
-				var selected = (d.values);
-				for (var k = 0; k < selected.length; k++) {
-					datearray[k] = selected[k].date
-					datearray[k] = datearray[k].getYear();// + datearray[k].getDate(); // 
-				}
+				.on("mousemove", function(d, i) {
+					mousex = d3.mouse(this);
+					mousex = mousex[0];
+					mousey = d3.mouse(this);
+					mousey = mousey[1];
+					var invertedx = x.invert(mousex);
+					invertedx = invertedx.getYear();// + invertedx.getDate(); //
+					var selected = (d.values);
+					for (var k = 0; k < selected.length; k++) {
+						datearray[k] = selected[k].date
+						datearray[k] = datearray[k].getYear();// + datearray[k].getDate(); // 
+					}
 
-				mousedate = datearray.indexOf(invertedx);
-				pro = d.values[mousedate].value;
+					mousedate = datearray.indexOf(invertedx);
+					pro = d.values[mousedate].value;
 
-				d3.select(this)
-					.classed("hover", true)
-					.attr("stroke", strokecolor)
-					.attr("stroke-width", "0.5px"), 
-					tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" )
-					.style("visibility", "visible")
-					.style("left", mousex + 70 + "px" )
-					.style("top", mousey + "px" );
-			})
+					d3.select(this)
+						.classed("hover", true)
+						.attr("stroke", strokecolor)
+						.attr("stroke-width", "0.5px"), 
+						tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" )
+						.style("visibility", "visible")
+						.style("left", mousex + 70 + "px" )
+						.style("top", mousey + "px" );
+				})
 
-			.on("mouseout", function(d, i) {
-				svg.selectAll(".layer")
-				.transition()
-				.duration(250)
-				.attr("opacity", "1");
-				d3.select(this)
-				.classed("hover", false)
-				.attr("stroke-width", "0px"), tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" ).style("visibility", "hidden");
-			})
+				.on("mouseout", function(d, i) {
+					svg.selectAll(".layer")
+					.transition()
+					.duration(250)
+					.attr("opacity", "1");
+					d3.select(this)
+					.classed("hover", false)
+					.attr("stroke-width", "0px"), tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" ).style("visibility", "hidden");
+				})
 
-		var vertical = d3.select(".chart")
-			.append("div")
-			.attr("class", "remove")
-			.style("position", "absolute")
-			.style("z-index", "19")
-			.style("width", "1px")
-			.style("height", "780px")
-			.style("top", "10px")
-			.style("bottom", "30px")
-			.style("left", "0px")
-			.style("background", "#fff");
+			var vertical = d3.select(".chart")
+				.append("div")
+				.attr("class", "remove")
+				.style("position", "absolute")
+				.style("z-index", "19")
+				.style("width", "1px")
+				.style("height", "780px")
+				.style("top", "10px")
+				.style("bottom", "30px")
+				.style("left", "0px")
+				.style("background", "#fff");
 
-		d3.select(".chart")
-			.on("mousemove", function(){
-				 mousex = d3.mouse(this);
-				 mousex = mousex[0] + 5;
-				 vertical.style("left", mousex + "px" )
-			})
-			.on("mouseover", function(){
-				 mousex = d3.mouse(this);
-				 mousex = mousex[0] + 5;
-				 vertical.style("left", mousex + "px")
+			d3.select(".chart")
+				.on("mousemove", function(){
+					 mousex = d3.mouse(this);
+					 mousex = mousex[0] + 5;
+					 vertical.style("left", mousex + "px" )
+				})
+				.on("mouseover", function(){
+					 mousex = d3.mouse(this);
+					 mousex = mousex[0] + 5;
+					 vertical.style("left", mousex + "px")
+				});
 			});
-		});
-	}
-</script>
+		}
+	</script>
 
 </body>
 </html>

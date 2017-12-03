@@ -11,7 +11,7 @@ from operator import itemgetter
 import csv
 
 # Access the vimeo API
-# v = vimeo.VimeoClient(token="15788d8848c4bd4d5bc044ea110e7d52", key="a549d0fcfcf1ac4456c83f4dd5788364a00ddd3c", secret="37sdo9zfjEieq7UB0gKRR41xxfuz3nzW7GmIL770lTJ4L5gUcGpvQGGlYjIWfaqlZvEoEFZPs6KxnLqQgV7RGu2bAalm86iV5esLnz81fxXeJBx0Fxuwr04oNJfp2QaG")
+# v = vimeo.VimeoClient(token="", key="", secret="")
 # vInfo = v.get('https://api.vimeo.com/videos/51533137') #, params={"fields": "tags"})
 # vInfo = v.get('https://api.vimeo.com/users/eyeofestival/videos?per_page=100&page=4')
 # assert vInfo.status_code == 200
@@ -96,13 +96,6 @@ for vid in data_in:
                     new_person['num'] = 1
                     data_out['people'].append(new_person)
 
-            # for n in names:
-            #     if n not in data_out['people']:
-            #         data_out['people'][n] = {}
-            #         data_out['people'][n]['num'] = 1
-            #     else:
-            #         data_out['people'][n]['num'] += 1
-
         name_full = name.split(' ',1)
         first_name = name_full[0].lower()
         last_name = ''
@@ -116,12 +109,6 @@ for vid in data_in:
 
         dt = datetime.strptime(vid[u'release_time'], '%Y-%m-%dT%H:%M:%S+00:00')
         y = dt.strftime('%Y')
-
-        #if y not in data_out['tags']:
-        #    data_out['tags'][y] = {}
-
-        # if (vid[u'tags'][0][u'name'] == u'eyeo2017'):
-            # print vid[u'tags'][0][u'name']
 
         for tag in vid[u'tags']:
 
@@ -165,11 +152,6 @@ for vid in data_in:
                     match = True
 
             if match is False:
-                # if current_tag not in data_out['tags'][y]:
-                #     data_out['tags'][y][current_tag] = {}
-                #     data_out['tags'][y][current_tag]['num'] = 1
-                # else:
-                #     data_out['tags'][y][current_tag]['num'] += 1
                 if current_tag not in data_out['tags']:
                     data_out['tags'][current_tag] = {}
                     data_out['tags'][current_tag][y] = {}
@@ -220,12 +202,6 @@ for t in data_out['tags']:
                 if (s == new_data_csv_wrapper[d][2]):
                     # found matching date, change the score
                     new_data_csv_wrapper[d][1] = data_out['tags'][t][y]['num'] # / 100.0
-
-            # new_data_csv.append(data_out['tags'][t][y]['num'] / 100.0)
-            # s = str(y) + '0101'
-            # date = datetime(year=int(s[0:4]), month=int(s[4:6]), day=int(s[6:8]))
-            # s = date.strftime("%m/%d/%y")
-            # new_data_csv.append(s)
 
         for i in range(len(new_data_csv_wrapper)):
             data_csv.append(new_data_csv_wrapper[i])

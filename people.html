@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>Eyeo Data Viz</title>
+	<script language="JavaScript" type="text/javascript" src="./js/jquery-3.2.1.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="./js/processing.min.js"></script>
+</head>
+<body>
+	<style>
+
+		body { font: 10px sans-serif; }
+		.chart { background: #fff; }
+
+		p {
+		  font: 14px helvetica;
+		  font-weight: bold;
+		}
+
+		.axis path, .axis line {
+		  fill: none;
+		  stroke: #000;
+		  stroke-width: 2px;
+		  shape-rendering: crispEdges;
+		}
+
+		button {
+		  position: absolute;
+		  right: 50px;
+		  top: 10px;
+		}
+
+	</style>
+
+	<p>Eyeo Speaker Count</p>
+	<canvas id="eyeo-people" data-processing-sources="./eyeo.pde"></canvas>
+	<script>
+		$.getJSON("data.json", function(json) {
+		    // this will show the info it in firebug console
+		    var pjs = Processing.getInstanceById('eyeo-people');
+		    var jsonStr = JSON.stringify(json);
+			var data = eval("[" + jsonStr + "]");
+			// console.log(data[0]['people']);
+			var counter = 0;
+			for (var key in data[0]['people']) {
+			    if (data[0]['people'].hasOwnProperty(key)) {
+			    	var num = data[0]['people'][key]['num'];
+			        // console.log(key + " -> " + data[0]['people'][key]);
+			        pjs.drawEyeoChart(num, data[0]['people'][key]['name'], counter);
+			        counter++;
+			    }
+			}
+		});
+	</script>
+
+</body>
+</html>
